@@ -7,7 +7,9 @@ AmberScript is a high level language, designed for AmberOS to create Programs an
 
 ## Authors
 
-- [@octokatherine](https://www.github.com/octokatherine)
+- [ItsGraphax](https://www.itsgraphax.de)
+- [Blackhole Studios](https://scratch.mit.edu/users/Blackhole-Games/)
+- [Spaced](https://scratch.mit.edu/users/unk0wn23/)
 
 
 ## Features
