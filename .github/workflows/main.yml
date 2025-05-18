@@ -3,7 +3,7 @@ name: Watch File Commits
 on:
   push:
     paths:
-      - 'test.txt'
+      - 'amberscript.sb3'
 
 jobs:
   notify-discord:
