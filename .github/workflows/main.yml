@@ -1,0 +1,33 @@
+name: Watch File Commits
+
+on:
+  push:
+    paths:
+      - 'test.txt'
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Commit Info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const commit = context.payload.head_commit;
+            const title = commit.message.split('\n')[0];
+            const desc = commit.message.split('\n').slice(1).join('\n').trim();
+            const webhookUrl = '${{ secrets.DISCORD_WEBHOOK }}';
+
+            const payload = {
+              embeds: [{
+                title: title,
+                description: desc || 'No description',
+                color: 0x00ff00
+              }]
+            };
+
+            await require('node-fetch')(webhookUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
