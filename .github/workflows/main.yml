@@ -9,6 +9,9 @@ jobs:
   notify-discord:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Send Discord Embed
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
@@ -20,9 +23,9 @@ jobs:
           curl -X POST "$DISCORD_WEBHOOK" \
           -H "Content-Type: application/json" \
           -d "$(jq -n --arg title "$TITLE" --arg description "$DESCRIPTION" '{
-            embeds: [{
+            embeds: [ {
               title: $title,
               description: $description,
               color: 65280
-            }]
+            } ]
           }')"
