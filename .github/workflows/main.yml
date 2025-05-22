@@ -15,17 +15,39 @@ jobs:
       - name: Send Discord Embed
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Default token for API access
         run: |
           TITLE=$(git log -1 --pretty=%s)
           DESCRIPTION=$(git log -1 --pretty=%b)
           DESCRIPTION=${DESCRIPTION:-"No description"}
+          AUTHOR_EMAIL=$(git log -1 --pretty=%ae)
+          AUTHOR_NAME=$(git log -1 --pretty=%an)
+
+          # Try to get GitHub username via API using commit author email
+          GH_USERNAME=$(curl -s -H "Authorization: token $GH_TOKEN" "https://api.github.com/search/users?q=${AUTHOR_EMAIL}+in:email" | jq -r '.items[0].login // empty')
+          
+          # If username found, get avatar
+          if [ -n "$GH_USERNAME" ]; then
+            AVATAR_URL=$(curl -s -H "Authorization: token $GH_TOKEN" "https://api.github.com/users/$GH_USERNAME" | jq -r '.avatar_url')
+          else
+            AVATAR_URL=""
+          fi
 
           curl -X POST "$DISCORD_WEBHOOK" \
           -H "Content-Type: application/json" \
-          -d "$(jq -n --arg title "$TITLE" --arg description "$DESCRIPTION" '{
-            embeds: [ {
-              title: $title,
-              description: $description,
-              color: 65280
-            } ]
-          }')"
+          -d "$(jq -n \
+            --arg title "$TITLE" \
+            --arg description "$DESCRIPTION" \
+            --arg author "$AUTHOR_NAME" \
+            --arg avatar "$AVATAR_URL" \
+            '{
+              embeds: [ {
+                title: $title,
+                description: $description,
+                color: 65280,
+                author: {
+                  name: $author,
+                  icon_url: ($avatar | select(length > 0))
+                }
+              } ]
+            }')"
