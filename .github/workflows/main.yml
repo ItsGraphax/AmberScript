@@ -23,17 +23,27 @@ jobs:
           AUTHOR_EMAIL=$(git log -1 --pretty=%ae)
           AUTHOR_NAME=$(git log -1 --pretty=%an)
 
-          GH_USERNAME=$(curl -s -H "Authorization: token $GH_TOKEN" "https://api.github.com/search/users?q=${AUTHOR_EMAIL}+in:email" | jq -r '.items[0].login // empty')
+          # Try to get GitHub username from email
+          GH_USERNAME=$(curl -s -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/search/users?q=${AUTHOR_EMAIL}+in:email" \
+            | jq -r '.items[0].login // empty')
 
-          # Fallback to git author name if GH username not found
-          AUTHOR_DISPLAY_NAME=${GH_USERNAME:-$AUTHOR_NAME}
+          # If username found, get avatar URL
+          if [ -n "$GH_USERNAME" ]; then
+            AVATAR_URL=$(curl -s -H "Authorization: token $GH_TOKEN" \
+              "https://api.github.com/users/$GH_USERNAME" \
+              | jq -r '.avatar_url // "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"')
+          else
+            GH_USERNAME="$AUTHOR_NAME"
+            AVATAR_URL="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+          fi
 
-          curl -X POST "$DISCORD_WEBHOOK" \
-          -H "Content-Type: application/json" \
-          -d "$(jq -n \
+          # Send payload
+          jq -n \
             --arg title "$TITLE" \
             --arg description "$DESCRIPTION" \
-            --arg author "$AUTHOR_DISPLAY_NAME" \
+            --arg author "$GH_USERNAME" \
+            --arg avatar "$AVATAR_URL" \
             '{
               content: null,
               embeds: [
@@ -42,9 +52,14 @@ jobs:
                   description: $description,
                   color: 16730184,
                   author: {
-                    name: $author
+                    name: $author,
+                    icon_url: $avatar
                   }
                 }
               ],
               attachments: []
-            }')"
+            }' > payload.json
+
+          curl -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d @payload.json
