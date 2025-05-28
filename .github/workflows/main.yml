@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'amberscript.sb3'
-      - 'as_ide.sb3'
+      - 'as-ide.sb3'
 
 jobs:
   notify-discord:
