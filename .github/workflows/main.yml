@@ -2,9 +2,6 @@ name: Watch File Commits
 
 on:
   push:
-    paths:
-      - 'amberscript.sb3'
-      - 'as-ide.sb3'
 
 jobs:
   notify-discord:
