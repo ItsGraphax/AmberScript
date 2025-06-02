@@ -1,0 +1,1 @@
+render.delete $f(1)

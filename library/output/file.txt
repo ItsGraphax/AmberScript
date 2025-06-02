@@ -1,0 +1,13 @@
+app.calc -> ? subsys.calc.line 61.2 8 9 +\n? subsys.calc.line 20.4 4 5 6 -\n? subsys.calc.line -20.4 1 2 3 d\n? subsys.calc.line -61.2 c 0 = x\n
+debug.easy_render -> render.new $f(1) $f(2) 0 0\nrender.modify $f(1) sprite.visible true\nrender.modify $f(1) position.smoothing 10\nrender.smoothmove $f(1) $r(-240,240) $r(-180,180)\nrender.modify $f(1) sprite.ghost.smoothing 10
+subsys.listeners.remove_on_close -> condition.eval $v(system.app.current) = $l(1) temp.eval\ncondition.eval $v(temp.eval) not _ temp.eval\nbranch.if $v(temp.eval) lib.uix.smooth_out $@()\nbranch.if $v(temp.eval) lib.tools.stop_listener $@().app_listener\n
+subsys.listeners.smooth_out_delete -> render.get $@() sprite.ghost.current temp.ghost\ncondition.eval temp.ghost > 99 temp.eval\nbranch.if $v(temp.eval) lib.tools.stop_listener $@().uix.smooth_out_delete\nbranch.if $v(temp.eval) lib.tools.delete_object $@()\n
+system.app_listener -> listener.start $f(1).app_listener $f(1) tick lib.listeners.remove_on_close $f(2)
+tools.apps.calc.line -> render.new org.amberos.calculator.$f(2) app-calc_$f(2) -135 $f(1) 40\n? uix.smooth_in org.amberos.calculator.$f(2)\nrender.new org.amberos.calculator.$f(3) app-calc_$f(3) -45 $f(1) 40\n? uix.smooth_in org.amberos.calculator.$f(3)\nrender.new org.amberos.calculator.$f(4) app-calc_$f(4) 45 $f(1) 40\n? uix.smooth_in org.amberos.calculator.$f(4)\nrender.new org.amberos.calculator.$f(5) app-calc_$f(5) 135 $f(1) 40\n? uix.smooth_in org.amberos.calculator.$f(5)
+tools.listener.stop -> listener.stop $f(1)
+tools.object.delete -> render.delete $f(1)
+tools.object.set_size -> render.modify $f(1) sprite.size.current $f(2)\nrender.modify $f(1) sprite.size.goal $f(2)
+tools.object.smooth_size -> render.modify $f(1) sprite.size.goal $f(2)
+uix.hoveranim -> render.modify $f(1) sprite.ghost.to 0\nrender.input hover $f(1) temp.hover\nbranch.if 
+uix.smooth_in -> render.modify $f(1) position.smoothing 3\nrender.modify $f(1) sprite.ghost.smoothing 3\nrender.get $f(1) position.y.current temp.y \nrender.modify $f(1) position.y.goal $v(temp.y) \nvariable.operation temp.y - 30 \nrender.modify $f(1) position.y.current $v(temp.y) \nrender.modify $f(1) sprite.ghost.current 100\nrender.modify $f(1) sprite.visible true\nrender.modify $f(1) sprite.ghost.to 0\n
+uix.smooth_out -> render.modify $f(1) position.smoothing 3\nrender.modify $f(1) sprite.ghost.smoothing 3\nrender.get $f(1) position.y.current temp.y\nvariable.operation temp.y - 30\nrender.modify $f(1) position.y.goal $v(temp.y)\nrender.modify $f(1) sprite.ghost.to 100\nlistener.start $f(1).uix.smooth_out_delete $f(1) tick lib.subsys.uix.smooth_out_delete\n
